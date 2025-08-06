@@ -92,5 +92,5 @@ export PMIX_MCA_gds=hash
 ## Set LD_PRELOAD for NCCL library
 export LD_PRELOAD=/opt/nccl/build/lib/libnccl.so
 
-echo "__DONE__"
+echo "__DONE__" >> /opt/gpu-node-init.log
 
