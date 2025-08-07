@@ -5,14 +5,37 @@ set -euo pipefail
 yum -y --enablerepo=amzn2-core-debuginfo install rdma-core-debuginfo
 ## extra ones from Romulo's original script 
 yum install -y libaio-devel python3-debug
+## this is required for building gcc 
+yum groupinstall -y "Development Tools"
+yum install -y gcc gcc-c++ gmp-devel mpfr-devel libmpc-devel wget
+## unfortunately, compiling the deepspeed kernel requires a higher version of gcc
+## than whats possible to install though yum, so we need to manually compile it
+cd /tmp
+wget https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-12.3.0.tar.gz
+tar -xzf gcc-12.3.0.tar.gz
+cd gcc-12.3.0
+./contrib/download_prerequisites
+mkdir build && cd build
+../configure --prefix=/opt/gcc-12.3 --enable-languages=c,c++ --disable-multilib
+make -j$(nproc) # this will take about 30 minutes :(
+make install
 
+if [ -z "${LD_LIBRARY_PATH+x}" ]; then
+	export LD_LIBRARY_PATH=""
+fi
+export LD_LIBRARY_PATH=/opt/gcc-12.3/lib64:$LD_LIBRARY_PATH
+
+if [ -z "${PATH+x}" ]; then
+        export PATH=""
+fi
+export PATH=/opt/gcc-12.3/bin:$PATH
+
+### now we can proceed with the rest of the setup
 export GDRCOPY_VERSION=v2.4.1
 export EFA_INSTALLER_VERSION=1.37.0
 export AWS_OFI_NCCL_VERSION=1.12.1-aws
 export NCCL_VERSION=v2.23.4-1
-if [ -z "${LD_LIBRARY_PATH+x}" ]; then
-	    export LD_LIBRARY_PATH=""
-fi
+
 export LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:/opt/amazon/openmpi/lib:/opt/nccl/build/lib:/opt/amazon/efa/lib:/opt/aws-ofi-nccl/install/lib:/usr/local/lib:$LD_LIBRARY_PATH
 export PATH=/opt/amazon/openmpi/bin/:/opt/amazon/efa/bin:/usr/bin:/usr/local/bin:$PATH
 
