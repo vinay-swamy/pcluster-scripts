@@ -10,15 +10,15 @@ yum groupinstall -y "Development Tools"
 yum install -y gcc gcc-c++ gmp-devel mpfr-devel libmpc-devel wget
 ## unfortunately, compiling the deepspeed kernel requires a higher version of gcc
 ## than whats possible to install though yum, so we need to manually compile it
-cd /tmp
-wget https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-12.3.0.tar.gz
-tar -xzf gcc-12.3.0.tar.gz
-cd gcc-12.3.0
-./contrib/download_prerequisites
-mkdir build && cd build
-../configure --prefix=/opt/gcc-12.3 --enable-languages=c,c++ --disable-multilib
-make -j$(nproc) # this will take about 30 minutes :(
-make install
+# cd /tmp
+# wget https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-12.3.0.tar.gz
+# tar -xzf gcc-12.3.0.tar.gz
+# cd gcc-12.3.0
+# ./contrib/download_prerequisites
+# mkdir build && cd build
+# ../configure --prefix=/opt/gcc-12.3 --enable-languages=c,c++ --disable-multilib
+# make -j$(nproc) # this will take about 30 minutes :(
+# make install
 
 if [ -z "${LD_LIBRARY_PATH+x}" ]; then
 	export LD_LIBRARY_PATH=""
